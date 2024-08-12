@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>version1.0</module>
+        <module>netty_learning</module>
     </modules>
 
     <properties>

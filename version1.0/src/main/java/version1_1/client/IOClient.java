@@ -16,8 +16,7 @@ import java.net.Socket;
 public class IOClient {
     public static RpcResponse sentRpcRequest(String host,int port, RpcRequest request){
 
-        try {
-            Socket socket = new Socket(host, port);
+        try(Socket socket = new Socket(host, port)) {
             ObjectOutputStream outputStream=new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
 
