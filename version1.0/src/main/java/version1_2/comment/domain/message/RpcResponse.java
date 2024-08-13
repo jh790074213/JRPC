@@ -16,6 +16,8 @@ public class RpcResponse implements Serializable {
     //状态信息
     private int code;
     private String message;
+    //更新：加入传输数据的类型，以便在自定义序列化器中解析
+    private Class<?> dataType;
     //具体数据
     private Object data;
     //构造成功信息
