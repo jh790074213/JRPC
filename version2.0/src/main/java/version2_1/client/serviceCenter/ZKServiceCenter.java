@@ -3,6 +3,8 @@ package version2_1.client.serviceCenter;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import version2_1.client.cache.ServiceCache;
+import version2_1.client.serviceCenter.watcher.ServiceWatcher;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.List;
 public class ZKServiceCenter implements ServiceCenter {
     private CuratorFramework client;
     public static final String ROOT_PATH = "RPC";
+    private ServiceCache cache;
 
     public ZKServiceCenter() {
         // 重试策略
@@ -25,15 +28,25 @@ public class ZKServiceCenter implements ServiceCenter {
                 .retryPolicy(retry)
                 .namespace(ROOT_PATH).build();
         client.start();
-        System.out.println("连接建立成功");
+        System.out.println("zookeeper连接建立成功");
+        this.cache = new ServiceCache();
+        //加入zookeeper事件监听器
+        ServiceWatcher watcher=new ServiceWatcher(client,cache);
+        //监听启动
+        watcher.watchToUpdate("/");
     }
 
     @Override
     public InetSocketAddress serviceDiscovery(String serviceName) {
         try {
-            List<String> strings = client.getChildren().forPath("/" + serviceName);
+            //先从本地缓存中找
+            List<String> serviceList=cache.getServiceFromCache(serviceName);
+            //如果找不到，再去zookeeper中找,只会出现在初始化阶段
+            if(serviceList==null) {
+                serviceList=client.getChildren().forPath("/" + serviceName);
+            }
             // TODO 这里需要负载均衡
-            String s = strings.get(0);
+            String s = serviceList.get(0);
             return parseAddress(s);
         } catch (Exception e) {
             e.printStackTrace();

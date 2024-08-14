@@ -267,10 +267,11 @@ client.delete().guaranteed().inBackground(new BackgroundCallback(){
 - ZooKeeper 中引入了Watcher机制来实现了发布/订阅功能能，能够让多个订阅者同时监听某一个对象，当一个对象自身状态变化时，会通知所有订阅者。
 - ZooKeeper 原生支持通过注册Watcher来进行事件监听，但是其使用并不是特别方便需要开发人员自己反复注册Watcher，比较繁琐。
 - Curator引入了 Cache 来实现对 ZooKeeper 服务端事件的监听。
-- ZooKeeper提供了三种Watcher：
+- Curator4中提供了三种Watcher：
   - NodeCache : 只是监听某一个特定的节点
   - PathChildrenCache : 监控一个ZNode的子节点. 
   - TreeCache : 可以监控整个树上的所有节点，类似于PathChildrenCache和NodeCache的组合
+- Curator5中上述三种方式弃用，使用CuratorCache进行所有节点的事件监听，**CuratorCache**可以监听当前节点及其所有子节点的事件。(在本项目中将使用CuratorCache处理动态更新缓存)
 
 **NodeCache :**
 
@@ -371,6 +372,40 @@ public void testNodeCache() throws Exception {
 
       }
   }
+```
+
+**CuratorCache**
+
+```java
+        // curator 5.1.0：NODE_CREATED、NODE_CHANGED、NODE_DELETED
+        CuratorCache curatorCache = CuratorCache.build(curatorFramework, "/curatorCache");
+        curatorCache.listenable().addListener(new CuratorCacheListener() {
+            /**
+            *type:事件类型NODE_CREATED,NODE_CHANGED,NODE_DELETED
+            *childData 更新前状态、数据
+            *childData1 更新后状态、数据
+            *创建节点时：节点刚被创建，不存在 更新前节点 ，所以第二个参数为 null
+            *节点创建时没有赋予值 create /curator/app1 只创建节点，在这种情况下，更新前节点的 data 为 null，获取不到更新前节点的数据
+            *删除节点时：节点被删除，不存在 更新后节点 ，所以第三个参数为 null
+            */
+            @Override
+            public void event(Type type, ChildData oldData, ChildData data) {
+                if (type.name().equals(CuratorCacheListener.Type.NODE_CREATED.name())) {
+                //（注意：创建节点时，oldData为null）
+                    log.info("A new node was added to the cache :{}",data.getPath());
+                    //TODO...
+                } else if (type.name().equals(CuratorCacheListener.Type.NODE_CHANGED.name())) {
+                    log.info("A node already in the cache has changed :{}", data.getPath());
+                    //TODO...
+                } else {
+                    //NODE_DELETED： node already in the cache was deleted.（注意：删除节点时，data为null）
+                    log.info("A node already in the cache was deleted :{}", oldData.getPath());
+                    //TODO...
+                }
+            }
+        });
+        curatorCache.start();
+
 ```
 
 ##### 分布式锁
