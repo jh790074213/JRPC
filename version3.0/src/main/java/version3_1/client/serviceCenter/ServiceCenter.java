@@ -14,4 +14,10 @@ public interface ServiceCenter {
      * @return 地址信息
      */
     InetSocketAddress serviceDiscovery(String serviceName);
+    /**
+     * 判断是否可重试
+     * @param serviceName 服务名
+     * @return 是否可重试
+     */
+    boolean checkRetry(String serviceName) ;
 }

@@ -17,7 +17,7 @@ public class Server {
         UserService userService=new UserServiceImpl();
         // 将服务注册到注册中心
         ServiceProvider serviceRegister=new ServiceProvider("127.0.0.1",9999);
-        serviceRegister.provideServiceInterface(userService);
+        serviceRegister.provideServiceInterface(userService,true);
         // 开启监听
         RpcServer rpcServer=new NettyRpcServer(serviceRegister);
         rpcServer.start(9999);

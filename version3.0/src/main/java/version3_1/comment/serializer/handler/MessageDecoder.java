@@ -3,6 +3,7 @@ package version3_1.comment.serializer.handler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import lombok.extern.slf4j.Slf4j;
 import version3_1.comment.domain.message.MessageType;
 import version3_1.comment.serializer.Serializer;
 
@@ -13,6 +14,7 @@ import java.util.List;
  * @Date 2024/8/13 20:18
  * @Version 2.0
  */
+@Slf4j
 public class MessageDecoder extends ByteToMessageDecoder {
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
@@ -35,6 +37,7 @@ public class MessageDecoder extends ByteToMessageDecoder {
         byte[] bytes=new byte[length];
         byteBuf.readBytes(bytes);
         Object deserialize= serializer.deserialize(bytes, messageType);
+        log.info(deserialize.toString());
         list.add(deserialize);
     }
 }

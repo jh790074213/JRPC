@@ -26,8 +26,8 @@ public class NettyRpcClient implements RpcClient {
     private static final Bootstrap bootstrap;
     private static final EventLoopGroup eventLoopGroup;
     private final ServiceCenter serviceCenter;
-    public NettyRpcClient(){
-        this.serviceCenter=new ZKServiceCenter();
+    public NettyRpcClient(ServiceCenter serviceCenter){
+        this.serviceCenter=serviceCenter;
     }
     //netty客户端初始化
     static {
@@ -41,7 +41,7 @@ public class NettyRpcClient implements RpcClient {
     @Override
     public RpcResponse sendRequest(RpcRequest request) {
         try {
-            // 从注册中心获取IP和端口号
+            // 从注册中心或者本地缓存中获取IP和端口号
             InetSocketAddress address = serviceCenter.serviceDiscovery(request.getInterfaceName());
             InetAddress host = address.getAddress();
             int port = address.getPort();

@@ -19,7 +19,7 @@ public class Client {
         while(count > 0){
             User user = userService.findUserById(1L);
             System.out.println("查询的用户信息为：" + user.toString());
-            Thread.sleep(1000);
+            // Thread.sleep(1000);
             User u = User.builder().id(100L).userName("jh").sex(true).build();
             Long userId = userService.insertUser(u);
             System.out.println("插入成功用户id为: " + userId);

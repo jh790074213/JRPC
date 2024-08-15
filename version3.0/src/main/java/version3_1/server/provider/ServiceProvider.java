@@ -28,17 +28,15 @@ public class ServiceProvider {
 
     }
     ////本地注册服务
-    public void provideServiceInterface(Object service){
-        String serviceName=service.getClass().getName();
+    public void provideServiceInterface(Object service,boolean canRetry){
         Class<?>[] interfaceName=service.getClass().getInterfaces();
 
         for (Class<?> clazz:interfaceName){
             // 本地映射表
             interfaceProvider.put(clazz.getName(),service);
             // 注册中心注册IP
-            serviceRegister.register(clazz.getName(),new InetSocketAddress(host,port));
+            serviceRegister.register(clazz.getName(),new InetSocketAddress(host,port),canRetry);
         }
-
     }
     //获取服务实例
     public Object getService(String interfaceName){

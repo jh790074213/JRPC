@@ -1,6 +1,7 @@
 package version3_1.server.register.impl;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -13,11 +14,13 @@ import java.net.InetSocketAddress;
 /**
  * @Author JH
  * @Date 2024/8/13 16:15
- * @Version 1.0
+ * @Version 3.0
  */
+@Slf4j
 public class ZKServiceRegister implements ServiceRegister {
     private CuratorFramework client;
     private static final String ROOT_PATH = "RPC";
+    private static final String RETRY = "CanRetry";
     public ZKServiceRegister(){
         // 指数时间重试
         RetryPolicy policy = new ExponentialBackoffRetry(1000, 3);
@@ -31,7 +34,7 @@ public class ZKServiceRegister implements ServiceRegister {
         System.out.println("zookeeper 连接成功");
     }
     @Override
-    public void register(String serviceName, InetSocketAddress serviceAddress) {
+    public void register(String serviceName, InetSocketAddress serviceAddress,boolean canRetry) {
         try {
             // serviceName创建成永久节点，服务提供者下线时，不删服务名，只删地址
             if(client.checkExists().forPath("/" + serviceName) == null){
@@ -41,8 +44,13 @@ public class ZKServiceRegister implements ServiceRegister {
             String path = "/" + serviceName +"/"+ getServiceAddress(serviceAddress);
             // 临时节点，服务器下线就删除节点
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path);
+            //如果这个服务是幂等性，就增加到节点中
+            if (canRetry){
+                path ="/"+RETRY+"/"+serviceName;
+                client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path);
+            }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("注册服务异常:" + e);
         }
     }
 

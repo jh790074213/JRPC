@@ -9,7 +9,7 @@ import version3_1.comment.serializer.Serializer;
 /**
  * @Author JH
  * @Date 2024/8/13 20:21
- * @Version 2.0
+ * @Version 3.0
  */
 public class JsonSerializer implements Serializer {
     @Override
@@ -43,10 +43,13 @@ public class JsonSerializer implements Serializer {
                 break;
             case 1:
                 RpcResponse response = JSON.parseObject(bytes, RpcResponse.class);
-                Class<?> dataType = response.getDataType();
-                //判断转化后的response对象中的data的类型是否正确
-                if(! dataType.isAssignableFrom(response.getData().getClass())){
-                    response.setData(JSON.parseObject(response.getData().toString(),dataType));
+                // 只有成功时才有数据，否则会报空指针
+                if(response.getCode() != 500){
+                    Class<?> dataType = response.getDataType();
+                    //判断转化后的response对象中的data的类型是否正确
+                    if(! dataType.isAssignableFrom(response.getData().getClass())){
+                        response.setData(JSON.parseObject(response.getData().toString(),dataType));
+                    }
                 }
                 obj = response;
                 break;
