@@ -12,6 +12,7 @@
         <module>version1.0</module>
         <module>version2.0</module>
         <module>version3.0</module>
+        <module>version4.0</module>
     </modules>
 
     <properties>
