@@ -1,7 +1,7 @@
 # JRPC
 ### 启动流程
 
-1.version1.2版本以上需要安装zookeeper，安装参考和zookeeper文档：[zookeeper](./doc/zookeeper.md)
+1.version1.2版本以上需要安装zookeeper，安装参考和zookeeper文档：[zookeeper](./doc/Zookeeper.md)
 
 2.启动zookeeper服务端，zkServer.cmd
 
