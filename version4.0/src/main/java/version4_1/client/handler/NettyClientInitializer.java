@@ -21,7 +21,7 @@ public class NettyClientInitializer extends ChannelInitializer<SocketChannel> {
         ChannelPipeline pipeline = socketChannel.pipeline();
         // 解决粘包，半包，前四个字节为内容长度
         pipeline.addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,4,4,0,0));
-        pipeline.addLast(new LoggingHandler(LogLevel.INFO));
+        // pipeline.addLast(new LoggingHandler(LogLevel.INFO));
         pipeline.addLast(new MessageEncoder(new JsonSerializer()));
         pipeline.addLast(new MessageDecoder());
         // 处理入站信息
